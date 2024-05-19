@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:33:37 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/19 22:51:19 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/20 00:24:55 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ int	main(int ac, char **av, char **env)
 	global->head_free = NULL;
 	global->shell = 0;
 	global->shell++;
+	global->xx = 0;
 	global->mode = 0;
 	global->syntax = 0;
 	global->backup = NULL;

@@ -12,9 +12,6 @@
 
 #include "ft_minishell.h"
 
-
-
-
 void	ft_exec_utils(t_list *head, int flag)
 {
 	char	*red;

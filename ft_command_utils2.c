@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/17 14:39:58 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/17 21:23:04 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/20 00:32:48 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ void	ft_handel_expend(t_list **head, t_str *strr)
 	char	*var;
 
 	expend = NULL;
+	global->xx = 1;
 	var = ft_return_variable(strr->str, &(strr->i));
 	if (var && var[0])
 	{
@@ -73,6 +74,8 @@ void	ft_handel_expend(t_list **head, t_str *strr)
 			var = ft_strdup(expend->content);
 		}
 	}
+	if (!var)
+		var = ft_strdup("");
 	strr->join = ft_strjoin(strr->join, var);
 }
 
@@ -80,10 +83,12 @@ char	*ft_remove(char *str, int flag, t_list **head)
 {
 	t_str	strr;
 
+	global->xx = 0;
 	ini_str(&strr);
 	strr.str = str;
 	while (str[strr.i])
 	{
+		global->xx = 0;
 		if (str[strr.i] == 34 || str[strr.i] == 39)
 			strr.c = str[strr.i];
 		if (str[strr.i] == '$' && !flag)
@@ -116,7 +121,8 @@ t_list	*ft_handel_qutes(t_list *head, int flag)
 			cmd = ft_remove(head->content, flag, &command);
 			node = ft_lstnew(cmd);
 		}
-		ft_lstadd_back(&command, node);
+		if (!global->xx || (global->xx && node->content[0]))
+			ft_lstadd_back(&command, node);
 		node = NULL;
 		head = head->next;
 	}

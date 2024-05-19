@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 19:14:52 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/19 22:41:21 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/20 00:53:11 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	exec_command(t_list *head, char *cmd, char **command)
 			exit(1);
 		if (ft_strrchr(cmd, '/') && opendir(cmd))
 			ft_print_error(cmd, "Is a directory");
-		if (cmd[0])
+		if (head && cmd[0])
 		{
 			if (global->data->in != 0)
 			{
@@ -68,7 +68,7 @@ void	ft_exec_command(t_list *head)
 	command = last_command(head);
 	cmd = ft_check_command(command[0]);
 	if (global->data->size == 1)
-		if (!ft_builting(head))
+		if (head && !ft_builting(head))
 			return ;
 	exec_command(head, cmd, command);
 }

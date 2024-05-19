@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:34:29 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/19 22:50:53 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/20 00:17:17 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ typedef struct Globall
 	int shell;
 	char *backup;
 	int syntax;
+	int xx;
 }			g_global;
 
 # ifndef EXTERN

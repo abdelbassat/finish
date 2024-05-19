@@ -1,10 +1,7 @@
 NAME = minishell
 
 
-# mohammed++++++++++++++=mad��������������
-# pwd > "out" built ins pobleme
-# ➔ minishell export t="a b c"
-# ➔ minishell export $t = "c b a"
+
 
 # echo $a_
 # (ls /root)

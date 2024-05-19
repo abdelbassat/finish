@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/03 16:59:46 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/19 23:44:05 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/20 00:39:53 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,14 +198,22 @@ t_list	*split_end_or(char *line, char *set, int check)
 
 void	ft_print_error(char *cmd, char *str)
 {
+	int	ex;
+
+	ex = 126;
+	if (errno == 2)
+		ex = 127;
 	ft_putstr_fd("minishell : ", 2);
 	ft_putstr_fd(cmd, 2);
 	ft_putstr_fd(" : ", 2);
 	if (!ft_strrchr(cmd, '/'))
+	{
 		str = "command not found";
+		ex = 127;
+	}
 	ft_putstr_fd(str, 2);
 	ft_putstr_fd("\n", 2);
-	exit(127);
+	exit(ex);
 }
 
 char	*ft_new_strjoin(char *str, char c)
