@@ -6,108 +6,77 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/03 16:49:51 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 17:27:25 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/19 23:43:24 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
 
-void	ft_nested_syntax(t_list **head, t_data *data, int *flag)
+void	ft_nested_syntax(t_list **head)
 {
 	char		*cmd;
-	char		*save;
 	t_quotes	qutes;
 	t_list		*list;
 	t_list		*ss;
 
 	list = *head;
 	ss = split_end_or(list->content, "<> ", 0);
-	*flag = ft_check_syntax(ss, 2, data);
-	if (!(*flag))
+	global->data->red = ft_check_syntax(ss, 2);
+	if (!global->data->red)
 		ft_split_rediction(list->content, head);
 	cmd = join_command(list->command);
-	if (cmd && !data->red)
+	if (cmd && !global->data->red)
 	{
-		ft_check_string(cmd, data);
-		if (ft_count_qutes(cmd, &qutes) == 1 && !data->red)
+		ft_check_string(cmd);
+		if (ft_count_qutes(cmd, &qutes) == 1 && !global->data->red)
 		{
-			save = cmd;
 			cmd = ft_substr(cmd, 1, ft_strlen(cmd) - 2);
-			free(save);
-			ft_syntax(cmd, data);
+			ft_syntax(cmd);
 		}
-		free(cmd);
 	}
-	ft_lstclear(&ss, free);
 }
 
-void	ft_syntax(char *line, t_data *data)
+void	ft_syntax(char *line)
 {
-	t_free	free_data;
 	t_list	*head;
 	t_list	*list;
 
-	head = split_end_or(line, "|& ", 1);
-	free_data.head = head;
-	data->red = ft_check_syntax(head, 4, data);
-	while (head && !data->red)
+	head = split_end_or(line, "|&", 1);
+	global->data->red = ft_check_syntax(head, 4);
+	while (head && !global->data->red)
 	{
 		if (head->x != 4)
 		{
 			list = split_end_or(head->content, "|", 0);
-			data->red = ft_check_syntax(list, 4, data);
-			head->new_list = list;
-			while (list && !data->red)
+			global->data->red = ft_check_syntax(list, 4);
+			while (list && !global->data->red)
 			{
 				if (list->x != 4)
-					ft_nested_syntax(&list, data, &data->red);
-				ft_free_list_node(&list);
+					ft_nested_syntax(&list);
 				list = list->next;
 			}
-			ft_lstclear(&(head->new_list), free);
 		}
 		head = head->next;
 	}
-	ft_lstclear(&(free_data.head), free);
 }
 
-int	ft_check_syntax(t_list *head, int flag, t_data *data)
+int	ft_check_syntax(t_list *head, int flag)
 {
-	int			i;
-	t_list		*tmp;
-	int			value;
-	int			j;
-	t_quotes	qutes;
-	int			save;
+	int	i;
 
-	value = 0;
 	i = 0;
-	save = 0;
-	tmp = head;
-	while (head && !value)
+	while (head)
 	{
-		if (head->x == 2)
-			save = 1;
 		if ((head->x == flag && (!head->next || head->next->x == flag))
 			|| (head->x == 4 && i == 0))
-			value = 1;
-		if (save && ft_count_qutes(head->content, &qutes))
-			value = 1;
+			return (1);
 		head = head->next;
 		i++;
 	}
-	j = 0;
-	while (tmp && value == 1)
-	{
-		if (!strcmp(tmp->content, "<<") && tmp->next && flag == 2 && j < i)
-			ft_read_stdin(tmp->next->content, data);
-		j++;
-		tmp = tmp->next;
-	}
-	return (value);
+	return (0);
 }
 
-void	ft_check_string(char *line, t_data *data)
+void	ft_check_string(char *line)
 {
 	int			i;
 	t_quotes	qutes;
@@ -120,7 +89,7 @@ void	ft_check_string(char *line, t_data *data)
 		i++;
 	}
 	if (qutes.cp || qutes.cq || qutes.cs || (qutes.en % 2) || (qutes.bk % 2))
-		data->red = 1;
+		global->data->red = 1;
 }
 
 int	ft_check_wildcard(char *line)

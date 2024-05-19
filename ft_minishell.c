@@ -6,92 +6,101 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:33:37 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 17:57:23 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/19 22:51:19 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#define EXTERN
 #include "ft_minishell.h"
 
-int		mode;
-
-void	handle_signal(int sig)
+void	ft_exec_pro(char *line)
 {
-	if (sig == SIGINT && mode == 0)
+	t_list	*head;
+
+	head = NULL;
+	ft_syntax(line);
+	if (global->data->red == 1)
 	{
-		printf("\n");
-		rl_replace_line("", 0);
-		rl_on_new_line();
-		rl_redisplay();
+		ft_putstr_fd("minishell: syntax error near unexpected token\n", 2);
+		global->data->red = 0;
+		global->data->status = 2;
 	}
 	else
 	{
-		printf("\n");
-		rl_replace_line("", 0);
-		rl_on_new_line();
+		global->mode = 1;
+		head = ft_nested_pip(line);
+		ft_nested_pip_ex(head, 1, 0);
 	}
 }
-void	handle_signal_cat(int sig)
+
+char	*ft_handel_tab(char *line)
 {
-	if (sig == SIGINT)
+	int		size;
+	char	*new;
+	int		i;
+
+	size = ft_strlen(line);
+	new = malloc(size + 1);
+	i = 0;
+	while (line[i])
 	{
-		printf("\n");
-		rl_replace_line("", 0);
-		rl_on_new_line();
+		if (line[i] == '\t')
+			line[i] = ' ';
+		new[i] = line[i];
+		i++;
 	}
-}
-void	ft_handle_signals(void)
-{
-	if (signal(SIGINT, handle_signal) == SIG_ERR)
-		printf("Error catch signal\n");
-	signal(SIGINT, handle_signal);
-	// if (data->data_mode == 0)
-	// else if (data->data_mode == 1)
-	// 	signal(SIGINT, handle_signal_cat);
-	signal(SIGQUIT, SIG_IGN);
-	signal(SIGTERM, SIG_IGN);
+	new[i] = 0;
+	return (new);
 }
 
 int	main(int ac, char **av, char **env)
 {
 	char	*line;
-	t_data	data;
-	t_list	*head;
-	char	*save;
 
 	(void)av;
-	head = NULL;
-	data.env = env;
-	initialize(NULL, &data);
-	ft_buffer_to_list(&data.env_list, env);
+	(void)env;
+	global = malloc(sizeof(g_global));
+	global->data = malloc(sizeof(t_data));
+	global->head_free = NULL;
+	global->shell = 0;
+	global->shell++;
+	global->mode = 0;
+	global->syntax = 0;
+	global->backup = NULL;
+	global->data->env_list = NULL;
+	initialize(NULL, global->data);
+	ft_buffer_to_list(&global->data->env_list, env);
 	if (ac != 1)
 		return (1);
+	// printf("/proc/%d/fd\n", getpid());
 	while (1)
 	{
-		mode = 0;
+		global->mode = 0;
 		ft_handle_signals();
-		line = ft_pwd(0);
-		save = line;
+		line = ft_pwd();
 		line = readline(line);
-		free(save);
 		add_history(line);
 		if (!line)
-			exit(1);
-		(void)head;
-		ft_syntax(line, &data);
-		if (data.red == 1)
-		{
-			ft_putstr_fd("minishell: syntax error near unexpected token\n", 2);
-			data.red = 0;
-		}
-		else
-		{
-			mode = 1;
-			head = ft_nested_pip(line, &data);
-			ft_nested_pip_ex(head, &data, STDOUT_FILENO, STDIN_FILENO);
-			ft_free_trees(&head);
-			data.in = 0;
-			data.out = 1;
-		}
+			break ;
+		line = ft_handel_tab(line);
+		ft_exec_pro(line);
 	}
-	return (0);
+	ft_free();
+	return (1);
+}
+
+void	ft_free(void)
+{
+	t_list	*tmp;
+	t_list	*head;
+
+	head = global->head_free;
+	tmp = NULL;
+	while (head)
+	{
+		tmp = head->next;
+		free(head->addr);
+		ft_lstdelone(head, free);
+		head = tmp;
+	}
 }

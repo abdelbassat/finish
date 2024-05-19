@@ -6,92 +6,71 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/17 23:19:20 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 16:19:58 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/19 23:44:42 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
 
-int		flag = 0;
 
-void	ft_exec_utils(t_list *head, t_data *data, int flag)
+
+
+void	ft_exec_utils(t_list *head, int flag)
 {
 	char	*red;
 
 	red = head->content;
 	if (flag == 1)
 	{
-		if (strcmp(red, ">>") == 0)
-			data->outfile = access_outfile_herdoc(head->next->content);
-		else if (strcmp(red, ">") == 0)
-			data->outfile = access_outfile(head->next->content);
-		else if (strcmp(red, "<") == 0)
-			data->intfile = access_intfile(head->next->content);
-		if (data->intfile == -1 || data->outfile == -1)
-			return ;
+		if (!strcmp(red, ">>"))
+		{
+			global->data->out = access_outfile_herdoc(head->next->content);
+			if (global->data->out != -1)
+			{
+				dup2(global->data->out, 1);
+				close(global->data->out);
+			}
+		}
+		else if (!strcmp(red, ">"))
+		{
+			global->data->out = access_outfile(head->next->content);
+			if (global->data->out != -1)
+			{
+				if (dup2(global->data->out, 1) == -1)
+					close(global->data->out);
+				global->data->out = 1;
+			}
+		}
+		else if (!strcmp(red, "<"))
+		{
+			global->data->in = access_intfile(head->next->content);
+			if (global->data->in != -1)
+			{
+				dup2(global->data->in, 0);
+				close(global->data->in);
+				global->data->in = 0;
+			}
+		}
 	}
 	else
 	{
-		if (strcmp(red, "<<") == 0)
+		if (!strcmp(red, "<<"))
 		{
-			data->intfile = ft_read_stdin(head->next->content, data);
-			unlink(data->save);
+			global->data->in = ft_read_stdin(head->next->content);
+			unlink(global->data->save);
 		}
 	}
 }
 
-void	ft_exec_redic(t_list *head, t_data *data, int flag)
+void	ft_exec_redic(t_list *head, int flag)
 {
-	data->outfile = 1;
-	data->intfile = 0;
 	while (head)
 	{
-		ft_exec_utils(head, data, flag);
-		if (data->intfile == -1 || data->outfile == -1)
-		{
-			data->status = 1;
+		ft_exec_utils(head, flag);
+		if (global->data->out == -1 || global->data->in == -1)
 			break ;
-		}
 		head = head->next;
-		if (head)
-			head = head->next;
 	}
-}
-
-// char	*ft_remove_v1(char *str, t_data *data)
-// {
-// 	int		i;
-// 	char	*join;
-// 	char	c;
-// 	char	*var;
-
-// 	var = NULL;
-// 	i = 0;
-// 	join = NULL;
-// 	while (str[i])
-// 	{
-// 		if (str[i] == 34 || str[i] == 39)
-// 			c = str[i];
-// 		if (str[i] == '$')
-// 		{
-// 			var = ft_return_variable(str, &i, data);
-// 			join = ft_strjoin(join, var);
-// 		}
-// 		else if (str[i] == c)
-// 			join = ft_strjoin(join, ft_qutes(str, &i, c, data, 0));
-// 		else
-// 		{
-// 			join = ft_new_strjoin(join, str[i]);
-// 			i++;
-// 		}
-// 	}
-// 	return (join);
-// }
-void	ft_handle_red(int i)
-{
-	(void)i;
-	flag = 1;
-	close(0);
 }
 
 char	*ft_generate(void)
@@ -102,6 +81,7 @@ char	*ft_generate(void)
 
 	fd = open("/dev/random", O_RDWR);
 	buff = malloc(11);
+	ft_lstadd_back(&(global->head_free), ft_lstnew_v1(buff));
 	read(fd, buff, 10);
 	buff[10] = 0;
 	i = 0;
@@ -114,17 +94,14 @@ char	*ft_generate(void)
 	return (ft_strjoin("/tmp/.", buff));
 }
 
-int	ft_read_stdin(char *end, t_data *data)
+int	ft_read_stdin(char *end)
 {
 	char	*buff;
 	int		fd;
-	int		input;
 
-	data->save = ft_generate();
-	fd = open(data->save, O_CREAT | O_RDWR, 0600);
-	input = dup(0);
-	signal(SIGINT, ft_handle_red);
-	while (1 && !flag)
+	global->data->save = ft_generate();
+	fd = open(global->data->save, O_CREAT | O_RDWR, 0600);
+	while (1)
 	{
 		buff = readline("> ");
 		if (!buff || !strcmp(buff, end))
@@ -132,25 +109,21 @@ int	ft_read_stdin(char *end, t_data *data)
 		write(fd, buff, ft_strlen(buff));
 		write(fd, "\n", 1);
 	}
-	dup2(input, 0);
-	close(input);
-	signal(SIGINT, handle_signal);
 	close(fd);
-	fd = open(data->save, O_RDWR, 0400);
+	fd = open(global->data->save, O_RDWR, 0400);
 	return (fd);
 }
 
 void	ft_split_rediction(char *line, t_list **command)
 {
 	t_list	*head;
-	t_list	*tmp;
 
 	head = split_end_or(line, ">< ", 0);
-	tmp = head;
 	while (head)
 	{
 		if (head->x == 4 && head->next->x != 4)
 		{
+			global->syntax = 1;
 			if (strcmp(head->content, "<<") == 0)
 			{
 				(*command)->int_file = 2;
@@ -160,16 +133,17 @@ void	ft_split_rediction(char *line, t_list **command)
 			}
 			else
 			{
-				if (!strcmp(head->content, "<"))
-					(*command)->int_file = 1;
+				(*command)->int_file = 1;
 				ft_lstnew_back(&((*command)->redic), head->content, 0);
 				head = head->next;
 				ft_lstnew_back(&((*command)->redic), head->content, 4);
 			}
 		}
 		else
+		{
+			global->syntax = 1;
 			ft_lstnew_back(&(*command)->command, head->content, 0);
+		}
 		head = head->next;
 	}
-	ft_lstclear(&tmp, free);
 }

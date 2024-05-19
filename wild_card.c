@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 10:21:59 by mmad              #+#    #+#             */
-/*   Updated: 2024/05/13 12:14:21 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/17 14:41:39 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,4 +104,15 @@ t_list	*ft_wild_card(char *p)
 		buff = ft_lstnew(p);
 	closedir(dir);
 	return (buff);
+}
+
+void	ft_for_wild(char *str, t_list **head)
+{
+	t_list	*node;
+
+	node = NULL;
+	node = ft_wild_card(str);
+	if (!node)
+		node = ft_lstnew(str);
+	ft_lstadd_back(head, node);
 }

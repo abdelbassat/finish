@@ -1,5 +1,18 @@
 NAME = minishell
 
+
+# mohammed++++++++++++++=mad��������������
+# pwd > "out" built ins pobleme
+# ➔ minishell export t="a b c"
+# ➔ minishell export $t = "c b a"
+
+# echo $a_
+# (ls /root)
+# CTRL+C
+# < a (ls)
+# cd file
+# (exit 1 1 1 1 )
+
 SRC = $(wildcard *.c)
 SRC_libft = $(wildcard libft/*.c)
 OBJECTS = $(SRC:.c=.o)
@@ -7,7 +20,7 @@ OBJECTS_LIBFT = $(SRC_libft:.c=.o)
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror -g3  -fsanitize=address #-no-pie
+CFLAGS = -Wall -Wextra -Werror #-g3 -fsanitize=address #-no-pie
 
 all: $(NAME) 
 	@rm -rf *.o

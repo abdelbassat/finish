@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/08 19:25:03 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 17:58:38 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/19 21:28:10 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	ft_print_list_export(t_list *head)
 	}
 }
 
-void	ft_export(t_list *command_list, t_data *data)
+void	ft_export(t_list *command_list)
 {
 	t_list	*test;
 
@@ -70,78 +70,78 @@ void	ft_export(t_list *command_list, t_data *data)
 	if (!command_list->next)
 	{
 		test = NULL;
-		ft_buffer_to_list_v1(&test, data->env_list);
+		ft_buffer_to_list_v1(&test, global->data->env_list);
 		ft_link_node(test);
 		ft_print_list_export(test);
-		ft_lstclear(&test, free);
 		return ;
 	}
 	else
 	{
-		ft_link_node(data->env_list);
-		ft_if_exist_var(data->env_list, command_list->next);
+		ft_link_node(global->data->env_list);
+		ft_if_exist_var(global->data->env_list, command_list->next);
 		if (command_list->next)
-			data->env_list = ft_fill_out(&data->env_list, command_list->next);
+			global->data->env_list = ft_fill_out(&global->data->env_list,
+					command_list->next);
 	}
 }
 
-void	ft_unset(t_list *command_list, t_data *data)
+void	ft_unset(t_list *command_list)
 {
 	t_list	*temp;
 
-	ft_link_node(data->env_list);
+	ft_link_node(global->data->env_list);
 	ft_link_node(command_list->next);
 	temp = command_list->next;
 	while (temp)
 	{
-		ft_remove_if(&data->env_list, (char *)temp->content);
+		ft_remove_if(&global->data->env_list, temp->content);
 		temp = temp->next;
 	}
 }
 
-void	ft_ECHO(t_list *command, t_data *data)
+void	ft_ECHO(t_list *command)
 {
-	ft_link_node(data->env_list);
-	ft_echo(data->env_list, command);
+	ft_link_node(global->data->env_list);
+	ft_echo(global->data->env_list, command);
 }
 
 void	ft_pwd_m(void)
 {
 	char	*path;
 
-	path = (char *)malloc(sizeof(char) * 1024);
+	path = malloc(sizeof(char) * 1024);
+	ft_lstadd_back(&(global->head_free), ft_lstnew_v1(path));
 	if (!path)
 		return ;
 	path = getcwd(path, 1024);
+	if (path == NULL)
+		path = global->backup;
 	printf("%s\n", path);
-	free(path);
 }
 
-int	ft_builting(t_data *data, t_list *command)
+int	ft_builting(t_list *command)
 {
 	char	*str;
 
+	if (global->data->in == -1 || global->data->out == -1)
+		return (1);
 	str = ft_strtrim(command->content, " ");
 	if (!strcmp(str, "env"))
-		ft_print_list(data->env_list);
+		ft_print_list();
 	else if (!strcmp(str, "export"))
-		ft_export(command, data);
+		ft_export(command);
 	else if (!strcmp(str, "unset"))
-		ft_unset(command, data);
+		ft_unset(command);
 	else if (!strcmp(str, "echo"))
-		ft_ECHO(command, data);
+		ft_ECHO(command);
 	else if (!strcmp(str, "cd"))
-		ft_cd(command, data);
+		ft_cd(command);
 	else if (!strcmp(str, "pwd"))
 		ft_pwd_m();
 	else if (!strcmp(str, "exit"))
-		ft_exit(command, data);
+		ft_exit(command);
 	else
-	{
-		free(str);
 		return (1);
-	}
-	data->status = 0;
-	free(str);
+	global->data->status = 0;
 	return (0);
 }

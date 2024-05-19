@@ -1,47 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strjoin.c                                       :+:      :+:    :+:   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/04 18:01:35 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 10:08:30 by abquaoub         ###   ########.fr       */
+/*   Created: 2023/11/04 18:02:26 by abquaoub          #+#    #+#             */
+/*   Updated: 2024/05/10 17:02:29 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strjoin(char *s1, char *s2)
+unsigned char	ft_atoi(const char *theString)
 {
-	char	*res;
-	int		i;
-	int		j;
+	int				s;
+	unsigned char	res;
+	int				i;
 
-
-	res = (char *)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
-	if (!res)
-		return (0);
+	s = 1;
+	res = 0;
 	i = 0;
-	j = 0;
-	if(s1)
+	while (theString[i] == ' ' || (theString[i] >= 9 && theString[i] <= 13))
+		i++;
+	if (theString[i] == '-' || theString[i] == '+')
 	{
-		
-	while (s1[i])
-	{
-		res[i] = s1[i];
+		if (theString[i] == '-')
+			s = -1;
 		i++;
 	}
-	}
-	if(s2)
+	while ((theString[i] >= '0' && theString[i] <= '9') && theString[i] != '\0')
 	{
-
-	while (s2 && s2[j])
-	{
-		res[i + j] = s2[j];
-		j++;
+		res = res * 10 + theString[i] - 48;
+		i++;
 	}
-	}
-	res[i + j] = 0;
-	return (res);
+	return (res * s);
 }

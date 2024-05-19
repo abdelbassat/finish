@@ -6,56 +6,11 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/19 16:27:06 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 17:30:19 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/17 20:31:13 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
-
-int	ft_math(int i)
-{
-	int	number;
-
-	number = 1;
-	while (i)
-	{
-		number *= 2;
-		i--;
-	}
-	return (number);
-}
-
-int	ft_reverse(char *str)
-{
-	int	number;
-	int	i;
-
-	str = &str[7];
-	number = 0;
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == '1')
-			number += ft_math(7 - i);
-		i++;
-	}
-	return (number);
-}
-
-char	*ft_revers_to_base64(char *str)
-{
-	char	*join;
-	int		i;
-
-	join = NULL;
-	i = 0;
-	while (str[i])
-	{
-		join = ft_new_strjoin(join, ft_reverse(ft_substr(str, i, 8)));
-		i += 8;
-	}
-	return (join);
-}
 
 char	*join_command(t_list *head)
 {
@@ -72,32 +27,7 @@ char	*join_command(t_list *head)
 	return (join);
 }
 
-void	ft_free_node(t_list *head)
-{
-	if (head->here_doc)
-		ft_lstclear(&(head->here_doc), free);
-	if (head->redic)
-		ft_lstclear(&(head->redic), free);
-	if (head->command)
-		ft_lstclear(&(head->command), free);
-	if (head->new_list)
-		ft_lstclear(&(head->new_list), free);
-}
-
-void	ft_free_tree(t_list *head)
-{
-	t_list	*tmp;
-
-	tmp = head;
-	while (head)
-	{
-		ft_free_node(head);
-		head = head->next;
-	}
-	ft_lstclear(&tmp, free);
-}
-
-void	ft_nested(t_list *head, t_data *data)
+void	ft_nested(t_list *head)
 {
 	char		*cmd;
 	char		*save;
@@ -113,19 +43,19 @@ void	ft_nested(t_list *head, t_data *data)
 		if (ft_count_qutes(cmd, &qutes) == 1)
 		{
 			list->x = 1;
+			cmd = ft_strtrim(cmd, " ");
 			save = ft_substr(cmd, 1, ft_strlen(cmd) - 2);
-			list->new_list = ft_nested_pip(save, data);
+			list->new_list = ft_nested_pip(save);
 		}
 	}
-	free(cmd);
-	list->command = ft_handel_qutes(list->command, data, 0);
-	list->redic = ft_handel_qutes(list->redic, data, 0);
-	list->here_doc = ft_handel_qutes(list->here_doc, data, 1);
-	ft_handel_redic(&(list->here_doc), data, 0);
-	list->in = data->in;
+	list->command = ft_handel_qutes(list->command, 0);
+	list->redic = ft_handel_qutes(list->redic, 0);
+	list->here_doc = ft_handel_qutes(list->here_doc, 1);
+	ft_handel_redic(&(list->here_doc), 0);
+	list->in = (global->data)->in;
 }
 
-t_list	*ft_nested_pip(char *line, t_data *data)
+t_list	*ft_nested_pip(char *line)
 {
 	t_list	*head;
 	t_list	*new;
@@ -142,7 +72,7 @@ t_list	*ft_nested_pip(char *line, t_data *data)
 			while (list)
 			{
 				if (list->x != 4)
-					ft_nested(list, data);
+					ft_nested(list);
 				list = list->next;
 			}
 		}

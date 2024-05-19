@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 03:16:22 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 09:43:13 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/17 17:56:07 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ char	*ft_strdup_if(char *str, char c)
 	int		i;
 	int		j;
 
-	new_str = (char *)malloc(sizeof(char) * ft_strlen(str));
+	new_str = (char *)malloc(sizeof(char) * ft_strlen(str) + 1);
+	ft_lstadd_back(&(global->head_free), ft_lstnew_v1(new_str));
 	if (!new_str)
 		return (NULL);
 	i = 0;
@@ -39,11 +40,11 @@ t_list	*ft_create_var(char *command, char c)
 	char	*new_command;
 	t_list	*list_command;
 
-	new_command = (char *)malloc(sizeof(char) * ft_strlen(command));
+	new_command = (char *)malloc(sizeof(char) * ft_strlen(command) + 1);
+	ft_lstadd_back(&(global->head_free), ft_lstnew_v1(new_command));
 	list_command = NULL;
 	new_command = ft_strdup_if(command, c);
 	ft_lstadd_back(&list_command, ft_lstnew((char *)new_command));
-	free(new_command);
 	return (list_command);
 }
 
@@ -93,6 +94,21 @@ int	ft_found_dolar(char *str)
 	return (0);
 }
 
+int	ft_strnstr_edit(char *big)
+{
+	int	i;
+
+	i = 0;
+	if ((big[i] == '-' && big[i + 1] == 'n'))
+	{
+		i++;
+		while (big[i] == 'n')
+			i++;
+		if (big[i] == 0)
+			return (1);
+	}
+	return (0);
+}
 void	ft_echo(t_list *env, t_list *command)
 {
 	int	flag_op;
@@ -100,16 +116,16 @@ void	ft_echo(t_list *env, t_list *command)
 	(void)env;
 	flag_op = 0;
 	command = command->next;
+	if (command && ft_strnstr_edit(command->content) == 1)
+	{
+		flag_op = 1;
+		command = command->next;
+	}
 	while (command)
 	{
-		if (strcmp(command->content, "-n") == 0)
-			flag_op = 1;
-		else
-		{
-			ft_putstr_fd(command->content, 1);
-			if (command->next)
-				ft_putchar_fd(' ', 1);
-		}
+		ft_putstr_fd(command->content, 1);
+		if (command->next)
+			ft_putchar_fd(' ', 1);
 		command = command->next;
 	}
 	if (flag_op == 1)

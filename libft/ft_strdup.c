@@ -1,38 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
+/*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/04 18:02:26 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/10 17:02:29 by abquaoub         ###   ########.fr       */
+/*   Created: 2023/11/04 18:11:46 by abquaoub          #+#    #+#             */
+/*   Updated: 2024/05/17 13:51:39 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../ft_minishell.h"
 #include "libft.h"
 
-unsigned char	ft_atoi(const char *theString)
+char	*ft_strdup(const char *source)
 {
-	int	s;
-	unsigned char	res;
-	int	i;
+	char	*dest;
+	size_t	len;
+	size_t	i;
 
-	s = 1;
-	res = 0;
+	len = ft_strlen(source);
 	i = 0;
-	while (theString[i] == ' ' || (theString[i] >= 9 && theString[i] <= 13))
-		i++;
-	if (theString[i] == '-' || theString[i] == '+')
+	dest = (char *)malloc(len + 1);
+	ft_lstadd_back(&(global->head_free), ft_lstnew_v1(dest));
+	if (!dest)
+		return (0);
+	while (source[i] != '\0')
 	{
-		if (theString[i] == '-')
-			s = -1;
+		dest[i] = source[i];
 		i++;
 	}
-	while ((theString[i] >= '0' && theString[i] <= '9') && theString[i] != '\0')
-	{
-		res = res * 10 + theString[i] - 48;
-		i++;
-	}
-	return (res * s);
+	dest[i] = '\0';
+	return (dest);
 }

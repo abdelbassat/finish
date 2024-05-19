@@ -72,9 +72,9 @@ static void	ft_test(char *arr, int i, int len, long int number)
 char	*ft_itoa(int n)
 {
 	size_t	number;
-	char		*arr;
-	int			len;
-	int			i;
+	char	*arr;
+	int		len;
+	int		i;
 
 	i = 0;
 	number = n;

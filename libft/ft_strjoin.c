@@ -1,38 +1,46 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_substr.c                                        :+:      :+:    :+:   */
+/*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/07 21:29:45 by abquaoub          #+#    #+#             */
-/*   Updated: 2023/11/17 05:09:05 by abquaoub         ###   ########.fr       */
+/*   Created: 2023/11/04 18:01:35 by abquaoub          #+#    #+#             */
+/*   Updated: 2024/05/17 13:51:42 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../ft_minishell.h"
 #include "libft.h"
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	char	*res;
-	size_t	j;
+	int		i;
+	int		j;
 
-	j = 0;
-	if (!s)
-		return (0);
-	else if (ft_strlen(s) <= start)
-		return (ft_strdup("\0"));
-	else if (len > ft_strlen(s) - start)
-		len = ft_strlen(s) - start;
-	res = (char *)malloc(len + 1);
+	res = (char *)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	ft_lstadd_back(&(global->head_free), ft_lstnew_v1(res));
 	if (!res)
 		return (0);
-	while (s[start] != '\0' && j < len)
+	i = 0;
+	j = 0;
+	if (s1)
 	{
-		res[j] = s[start];
-		j++;
-		start++;
+		while (s1[i])
+		{
+			res[i] = s1[i];
+			i++;
+		}
 	}
-	res[j] = '\0';
+	if (s2)
+	{
+		while (s2 && s2[j])
+		{
+			res[i + j] = s2[j];
+			j++;
+		}
+	}
+	res[i + j] = 0;
 	return (res);
 }

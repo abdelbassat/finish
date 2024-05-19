@@ -6,12 +6,13 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 18:01:28 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/04 16:56:02 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/17 13:51:45 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
+#include "../ft_minishell.h"
 static size_t	check_chr(char const *str, char c)
 {
 	size_t	i;
@@ -60,6 +61,7 @@ char	*ft_strtrim(char *s1, char const *set)
 	if (s1[i] == '\0')
 	{
 		res = (char *)malloc(sizeof(char) * 1);
+		ft_lstadd_back(&(global->head_free) , ft_lstnew_v1(res));
 		if (!res)
 			return (0);
 		res[0] = 0;

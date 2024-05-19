@@ -6,20 +6,20 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/05 12:20:44 by mmad              #+#    #+#             */
-/*   Updated: 2024/05/11 12:04:49 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/19 16:25:42 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
 
-char	*ft_search_if_key_exist_env_home(t_list **env, char *head, t_data *data)
+char	*ft_search_if_key_exist_env_home(t_list **env, char *head)
 {
 	t_list	*temp_env;
 
 	if (!head || !env || !(*env))
 		return (NULL);
 	else if (!strcmp(head, "?"))
-		return (ft_itoa(data->status));
+		return (ft_itoa(global->data->status));
 	temp_env = *env;
 	if (temp_env->key && temp_env->value)
 	{
@@ -27,8 +27,8 @@ char	*ft_search_if_key_exist_env_home(t_list **env, char *head, t_data *data)
 		{
 			if (head)
 			{
-				if (strcmp((char *)temp_env->key, head) == 0)
-					return ((char *)temp_env->value);
+				if (!strcmp(temp_env->key, head))
+					return (temp_env->value);
 			}
 			temp_env = temp_env->next;
 		}
@@ -37,17 +37,18 @@ char	*ft_search_if_key_exist_env_home(t_list **env, char *head, t_data *data)
 	return (NULL);
 }
 
-char	*ft_getenv(t_data *data, char *search)
+char	*ft_getenv(char *search)
 {
 	if (!search)
 		return (ft_strdup("$"));
-	ft_link_node(data->env_list);
-	return (ft_search_if_key_exist_env_home(&data->env_list, search, data));
+	ft_link_node(global->data->env_list);
+	return (ft_search_if_key_exist_env_home(&(global->data->env_list), search));
 }
 
-void	ft_cd(t_list *head, t_data *data)
+void	ft_cd(t_list *head)
 {
-	char *path = (char *)malloc(sizeof(char) * 100);
+	char *path = malloc(sizeof(char) * 1024);
+	ft_lstadd_back(&(global->head_free), ft_lstnew_v1(path));
 	if (!path)
 		return ;
 	t_list *temp = head;
@@ -57,18 +58,21 @@ void	ft_cd(t_list *head, t_data *data)
 		char *new_dir = ft_strdup(temp->next->content);
 		if (chdir(new_dir))
 		{
-			data->status = 1;
+			global->data->status = 1;
 			perror(ft_strjoin("minishell: cd: ", (char *)temp->next->content));
 		}
-		free(new_dir);
 	}
 	else if (ft_lstsize(temp) > 2)
 	{
 		printf("minishell: cd: too many arguments\n");
-		data->status = 1;
+		global->data->status = 1;
 	}
 	else
-		chdir(ft_getenv(data, "HOME"));
+	{
+		if (!ft_getenv("HOME"))
+			perror("");
+		else
+			chdir(ft_getenv("HOME"));
+	}
 	// error
-	free(path);
 }

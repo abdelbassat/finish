@@ -6,7 +6,7 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 04:34:29 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 17:41:17 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/19 22:50:53 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,34 +29,20 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
-extern int	errno;
-
-typedef struct freee
-{
-	t_list	*head;
-	t_list	*new_list;
-}			t_free;
-
 typedef struct Data
 {
 	char	*save;
 	int		check_Cmd;
-	int		intfile;
-	int		outfile;
 	int		status;
 	int		fd[2];
 	int		in;
 	int		out;
-	int		fd1;
-	int		fd0;
 	int		red;
 	int		pid;
-	char	**env;
 	int		exec;
 	t_list	*env_list;
-	int		t;
-	int data_mode;
-	int size;
+	int		data_mode;
+	int		size;
 }			t_data;
 
 typedef struct quotes
@@ -77,65 +63,71 @@ typedef struct STR
 	int		flag;
 }			t_str;
 
-void		ft_buffer_to_list(t_list **head, char **command);
-char		*ft_revers_to_base64(char *str);
-int			ft_reverse(char *str);
-char		*ft_base64(char *str);
-char		*ft_convert(int c);
-void		free_list(t_free *head, int flag);
+typedef struct Globall
+{
+	t_list	*head_free;
+	t_data	*data;
+	int mode;
+	int shell;
+	char *backup;
+	int syntax;
+}			g_global;
+
+# ifndef EXTERN
+#  define EXTERN extern
+# endif
+
+EXTERN int errno;
+
+EXTERN g_global *global;
+
+t_list		*ft_lstnew_v1(void *content);
+void ft_free();
 int			ft_count_qutes(char *line, t_quotes *qutes);
-void		ft_handel_redic(t_list **redic, t_data *data, int flag);
-void		ft_exec_utils(t_list *head, t_data *data, int flag);
-void		ft_exec_redic(t_list *head, t_data *data, int flag);
+void		ft_handel_redic(t_list **redic, int flag);
+void		ft_exec_utils(t_list *head, int flag);
+void		ft_exec_redic(t_list *head, int flag);
 void		ft_lstnew_back(t_list **head, char *cont, int flag);
-void		ft_exec_redic(t_list *head, t_data *data, int flag);
-int			ft_check_syntax(t_list *head, int flag , t_data *data);
-void		ft_nested_pip_ex(t_list *head, t_data *data, int fd1, int fd0);
-void	ini_str(t_str *data);
-t_list		*ft_nested_pip(char *line, t_data *data);
+int			ft_check_syntax(t_list *head, int flag);
+void		ft_nested_pip_ex(t_list *head, int fd1, int fd0);
+void		ini_str(t_str *data);
+t_list		*ft_nested_pip(char *line);
 t_list		*split_end_or(char *str, char *set, int flag);
-void		ft_check_string(char *str, t_data *data);
+void		ft_check_string(char *str);
 void		ft_display(t_list *ptr);
 int			access_intfile(char *path);
 int			access_outfile(char *path);
-void		ft_free_list_node(t_list **head);
-char	*ft_qutes(t_str *strr , t_data *data, int flag);
-void		ft_free_trees(t_list **head);
-void		red(void);
-void		cyan(void);
-void		yellow(void);
-void		reset(void);
-t_list		*ft_handel_qutes(t_list *head, t_data *data, int flag);
-void		ft_Error(char *path);
-char		*ft_pwd(int flags);
+char		*ft_qutes(t_str *strr, int flag);
+t_list		*ft_handel_qutes(t_list *head, int flag);
+void		ft_error(char *path);
+char		*ft_pwd();
 void		ft_check_quotes(char c, t_quotes *data);
-void		ft_command(t_list *head, t_data *data);
+void		ft_command(t_list *head);
 void		ft_split_rediction(char *line, t_list **new);
-void		ft_free_tree(t_list *head);
-void		ft_syntax(char *line, t_data *data);
+void		ft_syntax(char *line);
 char		*join_command(t_list *head);
-int			ft_read_stdin(char *end, t_data *data);
-void		ft_free(char **str);
-char		*ft_check_command(t_data *data, char *command);
+int			ft_read_stdin(char *end);
+char		*ft_check_command(char *command);
 char		**last_command(t_list *head);
 int			access_outfile_herdoc(char *path);
 int			ft_wild_card_string_matching(char *s, char *p);
 t_list		*ft_wild_card(char *p);
 int			ft_check_wildcard(char *line);
-t_list		*ft_join(t_list *head);
-t_list	*ft_wild_card(char *p);
+
+void	ft_print_error(char *cmd, char *str );
+void	ft_fork_exit(int er);
 void	initialize(t_quotes *qutes , t_data *data);
-char		*ft_return_variable(char *str, int *i, t_data *data);
+t_list		*ft_wild_card(char *p);
+char		*ft_return_variable(char *str, int *i);
 char		*ft_new_strjoin(char *str, char c);
-char		*ft_getenv(t_data *data, char *search);
-void		close_fd(t_list **tmp, t_data *data, int fd0);
-void		check_eo(t_list *head, t_data *data, int fd1, int fd0);
-void		wait_proccess(t_data *data, int proc);
-void ft_handel_expend(t_list **head , t_str *strr , t_data *data);
-char		*ft_search_if_key_exist_env_home(t_list **env, char *head,
-				t_data *data);
+char		*ft_getenv(char *search);
+void		close_fd(t_list **tmp, int fd0);
+void		check_eo(t_list *head, int fd1, int fd0);
+void		wait_proccess();
+void		ft_handel_expend(t_list **head, t_str *strr);
+char		*ft_search_if_key_exist_env_home(t_list **env, char *head);
 t_list		*ft_create_var(char *command, char c);
-void		ft_print_list(t_list *head);
+void		ft_print_list();
 void		ft_buffer_to_list(t_list **head, char **command);
 void		ft_if_exist_var(t_list *env, t_list *head);
 void		ft_link_node(t_list *head);
@@ -143,17 +135,18 @@ void		ft_remove_if(t_list **head, char *target);
 t_list		*ft_fill_out(t_list **env_list, t_list *head);
 void		ft_echo(t_list *env, t_list *command);
 int			ft_strchr_edit(const char *s, int c);
-void		ft_cd(t_list *head, t_data *data);
+void		ft_cd(t_list *head);
 char		*ft_strdup_if(char *str, char c);
 void		ft_buffer_to_list_v1(t_list **head, t_list *command);
-int			ft_builting(t_data *data, t_list *command);
-// void		ft_handle_signals(t_data *data);
-void		ft_exit(t_list *head, t_data *data);
+int			ft_builting(t_list *command);
+void		ft_exit(t_list *head);
 void		handle_signal(int sig);
 void		handle_signal_cat(int sig);
-char		*ft_remove(char *str, t_data *data, int flag, t_list **head);
-void	handle_signal(int sig);
-void	handle_signal_cat(int sig);
-void	ft_handle_signals(void);
+char		*ft_remove(char *str, int flag, t_list **head);
+void		handle_signal(int sig);
+void		handle_signal_cat(int sig);
+void		ft_handle_signals(void);
+void	ft_for_wild(char *str, t_list **head);
+void	charset(char c, char *set, t_str *strr);
 
 #endif

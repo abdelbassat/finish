@@ -6,14 +6,71 @@
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 13:56:16 by abquaoub          #+#    #+#             */
-/*   Updated: 2024/05/13 18:02:35 by abquaoub         ###   ########.fr       */
+/*   Updated: 2024/05/17 21:14:26 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_minishell.h"
 
-void	ft_print_list(t_list *head)
+void	ft_remove_if_v2(t_list **head, char *target) // hena can not cause leaks
 {
+	t_list *prev;
+	t_list *new_node;
+	t_list *temp;
+
+	if (!*head || !head)
+		return ;
+	temp = *head;
+	prev = NULL;
+	new_node = NULL;
+	while (temp)
+	{
+		if (strcmp((char *)temp->key, target) == 0)
+		{
+			if (prev)
+			{
+				prev->next = temp->next;
+				new_node = temp->next;
+				temp = new_node;
+			}
+			else
+			{
+				*head = temp->next;
+				temp = *head;
+			}
+		}
+		else
+		{
+			prev = temp;
+			temp = temp->next;
+		}
+	}
+}
+
+t_list	*ft_remove_if_v1(t_list **head, char *target)
+{
+	t_list	*temp;
+
+	if (!*head || !head)
+		return (NULL);
+	temp = *head;
+	while (temp)
+	{
+		if (strcmp((char *)temp->key, target) == 0)
+			return (temp);
+		temp = temp->next;
+	}
+	return (NULL);
+}
+void	ft_print_list(void)
+{
+	t_list	*head;
+	t_list	*save;
+
+	head = global->data->env_list;
+	save = ft_remove_if_v1(&head, "_");
+	ft_remove_if_v2(&head, "_");
+	ft_lstadd_back(&head, ft_lstnew((char *)save->content));
 	while (head)
 	{
 		if (ft_strchr_edit((char *)head->content, '=') == 1)
@@ -21,28 +78,48 @@ void	ft_print_list(t_list *head)
 		head = head->next;
 	}
 }
-
-void	ft_buffer_to_list(t_list **head, char **command)
-// hena can not cause leaks
+int	ft_env_size(char **command)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (command[i])
-	{
-		ft_lstadd_back(head, ft_lstnew((char *)command[i]));
 		i++;
+	return (i);
+}
+void	ft_buffer_to_list(t_list **head, char **command)
+{
+	int		i;
+	char	*join;
+	char	*buff;
+
+	i = 0;
+	if (ft_env_size(command) != 0)
+	{
+		while (command[i])
+		{
+			ft_lstadd_back(head, ft_lstnew(command[i]));
+			i++;
+		}
+	}
+	else
+	{
+		buff = malloc(100);
+		ft_lstadd_back(head, ft_lstnew(getcwd(buff, 100)));
+		join = ft_strjoin("SHLVL=", ft_itoa(global->shell));
+		ft_lstadd_back(head, ft_lstnew(join));
+		ft_lstadd_back(head,
+			ft_lstnew("PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/mmad/.local/bin/:/home/mmad/.local/bin/"));
+		ft_lstadd_back(head, ft_lstnew("_=/usr/bin/env"));
 	}
 }
 void	ft_buffer_to_list_v1(t_list **head, t_list *command)
-// hena can not cause leaks
 {
 	while (command)
 	{
-		ft_lstadd_back(head, ft_lstnew((char *)command->content));
+		ft_lstadd_back(head, ft_lstnew(command->content));
 		command = command->next;
 	}
-	// ft_lstclear(&command, free);
 }
 int	ft_if_plus_eql(char *str) // hena can not cause leaks
 {
@@ -114,19 +191,19 @@ char	*ft_strchr_i(const char *s) // hena can not cause leaks
 	i = 0;
 	while (s[i])
 	{
-		if (s[i] == '+' && s[i + 1] == '=')
+		if (s[i] == '+' && s[i + 1] && s[i + 1] == '=')
 		{
 			i += 2;
 			return ((char *)&s[i]);
 		}
-		else if ((s[i] == '+' || s[i + 1] == '='))
+		else if ((s[i] == '+' || (s[i + 1] && s[i + 1] == '=')))
 		{
 			i += 2;
 			return ((char *)&s[i]);
 		}
 		i++;
 	}
-	if (s[i] == '=' || s[i + 1])
+	if (s[i] == '=' || (s[i + 1] && s[i + 1] == '='))
 		return ((char *)&s[i]);
 	return (NULL);
 }
@@ -190,17 +267,17 @@ void	ft_remove_if(t_list **head, char *target) // hena can not cause leaks
 	{
 		if (strcmp((char *)temp->key, target) == 0)
 		{
+			if (strcmp(target, "_") == 0)
+				return ;
 			if (prev)
 			{
 				prev->next = temp->next;
 				new_node = temp->next;
-				free(temp);
 				temp = new_node;
 			}
 			else
 			{
 				*head = temp->next;
-				free(temp);
 				temp = *head;
 			}
 		}
@@ -249,10 +326,10 @@ t_list	*ft_fill_out(t_list **env_list, t_list *head)
 		if (ft_search_if_key_exist(&temp_env_list, temp) == 1)
 		{
 			result = temp;
-			result = ft_create_var((char *)temp->content, '+');
+			result = ft_create_var(temp->content, '+');
+			// printf("%p\n" , result);
 			ft_lstadd_back(env_list, ft_lstnew(result->content));
 			ft_link_node(*env_list);
-			ft_lstclear(&result, free);
 		}
 		temp_env_list = (*env_list);
 		temp = temp->next;

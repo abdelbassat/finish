@@ -1,33 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strdup.c                                        :+:      :+:    :+:   */
+/*   ft_lstnew_v1.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abquaoub <abquaoub@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/04 18:11:46 by abquaoub          #+#    #+#             */
-/*   Updated: 2023/11/15 21:12:46 by abquaoub         ###   ########.fr       */
+/*   Created: 2024/05/16 18:44:47 by abquaoub          #+#    #+#             */
+/*   Updated: 2024/05/17 16:28:17 by abquaoub         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "ft_minishell.h"
 
-char	*ft_strdup(const char *source)
+t_list	*ft_lstnew_v1(void *content)
 {
-	char	*dest;
-	size_t	len;
-	size_t	i;
+	t_list	*new_node;
 
-	len = ft_strlen(source);
-	i = 0;
-	dest = (char *)malloc(len + 1);
-	if (!dest)
+	new_node = (t_list *)malloc(sizeof(t_list));
+	if (!new_node)
 		return (0);
-	while (source[i] != '\0')
-	{
-		dest[i] = source[i];
-		i++;
-	}
-	dest[i] = '\0';
-	return (dest);
+	new_node->addr = content;
+	new_node->content = NULL;
+	new_node->next = NULL;
+	return (new_node);
 }
